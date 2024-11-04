@@ -1,4 +1,4 @@
-module github.com/bxelab/runestone/cmd/runestonecli
+module github.com/studyzy/runestone/cmd/runestonecli
 
 go 1.22.2
 
@@ -7,7 +7,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.1.3
 	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0
-	github.com/bxelab/runestone v0.0.0-20240425113004-bea3419a6a3e
+	github.com/studyzy/runestone v0.0.0-20240425113004-bea3419a6a3e
 	github.com/manifoldco/promptui v0.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.18.2
@@ -42,4 +42,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/bxelab/runestone => ../../
+replace github.com/studyzy/runestone => ../../

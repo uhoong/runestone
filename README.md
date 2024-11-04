@@ -5,7 +5,7 @@ Bitcoin Rune protocol golang implement library.
 ## How to use
 
 ```go
-go get github.com/bxelab/runestone@latest
+go get github.com/studyzy/runestone@latest
 ```
 
 ### Etching

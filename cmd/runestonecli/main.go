@@ -9,9 +9,9 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/bxelab/runestone"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/viper"
+	"github.com/studyzy/runestone"
 	"golang.org/x/text/message"
 )
 

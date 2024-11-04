@@ -32,7 +32,7 @@
 // To start using the runestone package, simply import it into your Go project:
 //
 // ```
-// go get github.com/bxelab/runestone
+// go get github.com/studyzy/runestone
 // ```
 //
 // You can then use the various components provided by the package to interact with the Rune protocol,

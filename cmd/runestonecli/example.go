@@ -7,7 +7,7 @@ import (
 
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/bxelab/runestone"
+	"github.com/studyzy/runestone"
 	"lukechampine.com/uint128"
 )
 
