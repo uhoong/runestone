@@ -1,11 +1,11 @@
 PrivateKey: "1234567890"
 Network: "testnet" # mainnet or testnet
-RpcUrl: "https://blockstream.info/testnet/api" #https://mempool.space/api https://mempool.space/testnet/api
-FeePerByte: 5
+RpcUrl: "https://mempool.space/testnet/api" # https://blockstream.info/testnet/api https://mempool.space/api https://mempool.space/testnet/api
+FeePerByte: 5000
 UtxoAmount: 1000
 Etching:
-  Rune: "STUDYZY"
-  Symbol: "曾"
+  Rune: "RUNESSSSTUDYA"
+  Symbol: "s"
   Premine: 1000000
   Amount: 1000
   Cap: 20000
@@ -15,4 +15,4 @@ Etching:
 #  HeightOffsetStart: 0
 #  HeightOffsetEnd: 0
 Mint:
-  RuneId: "2609649:946"
+  RuneId: "2584609:149"

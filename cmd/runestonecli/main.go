@@ -22,28 +22,36 @@ func main() {
 	p = message.NewPrinter(lang)
 	loadConfig()
 	checkAndPrintConfig()
-
-	// 显示多语言文本
-	items := []string{i18n("Etching a new rune"), i18n("Mint rune")}
-	prompt := promptui.Select{
-		Label: i18n("Please select an option"),
-		Items: items,
-	}
-
-	optionIdx, _, err := prompt.Run()
-
-	if err != nil {
-		p.Printf("Prompt failed %v", err)
-		return
-	}
-	if optionIdx == 0 { //Etching a new rune
-		BuildEtchingTxs()
-	}
-	if optionIdx == 1 { //Mint rune
-		BuildMintTxs()
-
-	}
+	test1()
+	// mint_rune_chain(1)
 }
+
+// func main() {
+// 	p = message.NewPrinter(lang)
+// 	loadConfig()
+// 	checkAndPrintConfig()
+
+// 	// 显示多语言文本
+// 	items := []string{i18n("Etching a new rune"), i18n("Mint rune")}
+// 	prompt := promptui.Select{
+// 		Label: i18n("Please select an option"),
+// 		Items: items,
+// 	}
+
+// 	optionIdx, _, err := prompt.Run()
+
+// 	if err != nil {
+// 		p.Printf("Prompt failed %v", err)
+// 		return
+// 	}
+// 	if optionIdx == 0 { //Etching a new rune
+// 		BuildEtchingTxs()
+// 	}
+// 	if optionIdx == 1 { //Mint rune
+// 		BuildMintTxs()
+
+// 	}
+// }
 
 func loadConfig() {
 	viper.SetConfigName("config")
@@ -201,7 +209,7 @@ func BuildMintTxs() {
 	btcConnector := NewMempoolConnector(config)
 	prvKey, address, _ := config.GetPrivateKeyAddr()
 	utxos, err := btcConnector.GetUtxos(address)
-	tx, err := BuildTransferBTCTx(prvKey, utxos, address, config.GetUtxoAmount(), config.GetFeePerByte(), config.GetNetwork(), runeData)
+	tx, err := BuildTransferBTCTx(prvKey, utxos, address, config.GetUtxoAmount(), config.GetFeePerByte(), config.GetNetwork(), runeData, false)
 	if err != nil {
 		p.Println("BuildMintRuneTx error:", err.Error())
 		return

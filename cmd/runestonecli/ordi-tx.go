@@ -129,7 +129,7 @@ func BuildRuneEtchingTxs(privateKey *btcec.PrivateKey, utxo []*Utxo, runeOpRetur
 	}
 	return commitTxBytes, revealTxBytes, nil
 }
-func BuildTransferBTCTx(privateKey *btcec.PrivateKey, utxo []*Utxo, toAddr string, toAmount, feeRate int64, net *chaincfg.Params, runeData []byte) ([]byte, error) {
+func BuildTransferBTCTx(privateKey *btcec.PrivateKey, utxo []*Utxo, toAddr string, toAmount, feeRate int64, net *chaincfg.Params, runeData []byte, splitChangeOutput bool) ([]byte, error) {
 	address, err := btcutil.DecodeAddress(toAddr, net)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func BuildTransferBTCTx(privateKey *btcec.PrivateKey, utxo []*Utxo, toAddr strin
 		return nil, err
 	}
 	// 1. build tx
-	transferTx, err := buildCommitTx(utxo, wire.NewTxOut(toAmount, pkScript), feeRate, runeData, true)
+	transferTx, err := buildCommitTx(utxo, wire.NewTxOut(toAmount, pkScript), feeRate, runeData, splitChangeOutput)
 	if err != nil {
 		return nil, err
 	}
@@ -154,6 +154,69 @@ func BuildTransferBTCTx(privateKey *btcec.PrivateKey, utxo []*Utxo, toAddr strin
 		return nil, err
 	}
 	return commitTxBytes, nil
+}
+
+func BuildSendBTCTx(privateKey *btcec.PrivateKey, utxo []*Utxo, toAddr string, toAmount, feeRate int64, net *chaincfg.Params) ([]byte, error) {
+	address, err := btcutil.DecodeAddress(toAddr, net)
+	if err != nil {
+		return nil, err
+	}
+	pkScript, err := txscript.PayToAddrScript(address)
+	if err != nil {
+		return nil, err
+	}
+
+	totalSenderAmount := btcutil.Amount(0)
+	tx := wire.NewMsgTx(wire.TxVersion)
+	var changePkScript *[]byte
+	bestUtxo := findBestUtxo(utxo, toAmount, feeRate)
+	for _, single_utxo := range bestUtxo {
+		txOut := single_utxo.TxOut()
+		outPoint := single_utxo.OutPoint()
+		if changePkScript == nil { // first sender as change address
+			changePkScript = &txOut.PkScript
+		}
+		in := wire.NewTxIn(&outPoint, nil, nil)
+		in.Sequence = defaultSequenceNum
+		tx.AddTxIn(in)
+		totalSenderAmount += btcutil.Amount(txOut.Value)
+	}
+
+	// add reveal tx output
+	tx.AddTxOut(wire.NewTxOut(toAmount, pkScript))
+	tx.AddTxOut(wire.NewTxOut(0, *changePkScript))
+	//mock witness to calculate fee
+	emptySignature := make([]byte, 64)
+	for _, in := range tx.TxIn {
+		in.Witness = wire.TxWitness{emptySignature}
+	}
+	fee := btcutil.Amount(mempool.GetTxVirtualSize(btcutil.NewTx(tx))) * btcutil.Amount(feeRate)
+	changeAmount := totalSenderAmount - btcutil.Amount(toAmount) - fee
+	if changeAmount > 0 {
+		tx.TxOut[len(tx.TxOut)-1].Value += int64(changeAmount)
+	} else {
+		tx.TxOut = tx.TxOut[:len(tx.TxOut)-1]
+		feeWithoutChange := btcutil.Amount(mempool.GetTxVirtualSize(btcutil.NewTx(tx))) * btcutil.Amount(feeRate)
+		if totalSenderAmount-btcutil.Amount(toAmount)-feeWithoutChange < 0 {
+			return nil, errors.New("insufficient balance")
+		}
+	}
+	//clear mock witness
+	for _, in := range tx.TxIn {
+		in.Witness = nil
+	}
+
+	// 2.sign tx
+	tx, err = signCommitTx(privateKey, utxo, tx)
+	if err != nil {
+		return nil, err
+	}
+	// 3. serialize
+	txBytes, err := serializeTx(tx)
+	if err != nil {
+		return nil, err
+	}
+	return txBytes, nil
 }
 
 func VerifyTx(rawTx string, prevTxOutScript []byte, prevTxOutValue int64) error {
