@@ -22,8 +22,8 @@ func main() {
 	p = message.NewPrinter(lang)
 	loadConfig()
 	checkAndPrintConfig()
-	test1()
-	// mint_rune_chain(1)
+	// mint_rune(5, "4463fafa38879bf951abc429c03d00fba40def519a68cf85353bd315499c48f4", 1)
+	build_rbf_tx("41b985bb1be8533d693e0faacc5cdc401aee40ce1e75e4b0bfd9f54c7677c0e9", 5, 500)
 }
 
 // func main() {

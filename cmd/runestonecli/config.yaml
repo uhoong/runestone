@@ -1,7 +1,7 @@
 PrivateKey: "1234567890"
 Network: "testnet" # mainnet or testnet
 RpcUrl: "https://mempool.space/testnet/api" # https://blockstream.info/testnet/api https://mempool.space/api https://mempool.space/testnet/api
-FeePerByte: 5000
+FeePerByte: 2000
 UtxoAmount: 1000
 Etching:
   Rune: "RUNESSSSTUDYA"
@@ -15,4 +15,4 @@ Etching:
 #  HeightOffsetStart: 0
 #  HeightOffsetEnd: 0
 Mint:
-  RuneId: "2584609:149"
+  RuneId: "2584631:208"

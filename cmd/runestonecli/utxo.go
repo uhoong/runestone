@@ -26,6 +26,13 @@ func (u *Utxo) TxOut() *wire.TxOut {
 	return wire.NewTxOut(u.Value, u.PkScript)
 }
 
+func (utxo Utxo) FetchPrevOutput(o wire.OutPoint) *wire.TxOut {
+	if bytes.Equal(utxo.TxHash[:], o.Hash[:]) && utxo.Index == o.Index {
+		return wire.NewTxOut(utxo.Value, utxo.PkScript)
+	}
+	return nil
+}
+
 type UtxoList []*Utxo
 
 func (l UtxoList) Add(utxo *Utxo) UtxoList {

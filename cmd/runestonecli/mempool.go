@@ -44,6 +44,28 @@ func NewMempoolConnector(config Config) *MempoolConnector {
 	return connector
 }
 
+func (m MempoolConnector) get_recommended_fee() (float64, error) {
+	res, err := m.request(http.MethodGet, "/v1/fees/mempool-blocks", nil)
+	if err != nil {
+		return -1, err
+	}
+	var block_fee []BlockFee
+	err = json.Unmarshal(res, &block_fee)
+	if err != nil {
+		return -1, err
+	}
+	return block_fee[0].FeeRange[1], nil
+}
+
+type BlockFee struct {
+	BlockSize  uint64    `json:"blockSize"`
+	BlockVSize float64   `json:"blockVSize"`
+	NTx        uint64    `json:"nTx"`
+	TotalFees  uint64    `json:"totalFees"`
+	MedianFee  float64   `json:"medianFee"`
+	FeeRange   []float64 `json:"feeRange"`
+}
+
 func (m MempoolConnector) GetBlockHeight() (uint64, error) {
 	res, err := m.request(http.MethodGet, "/blocks/tip/height", nil)
 	if err != nil {
@@ -240,6 +262,32 @@ func (m MempoolConnector) GetRawTxByHash(hash string) (*wire.MsgTx, error) {
 	}
 	log.Printf("found tx %s", hash)
 	return tx, nil
+}
+
+func (m MempoolConnector) get_utxo_by_hash_index(hash string, index int) (*Utxo, error) {
+	res, err := m.request(http.MethodGet, fmt.Sprintf("/tx/%s/raw", hash), nil)
+	if err != nil {
+		return nil, err
+	}
+	//unmarshal the response
+	tx := &wire.MsgTx{}
+	if err := tx.Deserialize(bytes.NewReader(res)); err != nil {
+		return nil, err
+	}
+	log.Printf("found tx %s", hash)
+
+	tx_out := tx.TxOut[index]
+	tx_hash, err := chainhash.NewHashFromStr(hash)
+	if err != nil {
+		return nil, err
+	}
+	utxo := &Utxo{
+		TxHash:   BytesToHash(tx_hash.CloneBytes()),
+		Index:    uint32(index),
+		Value:    tx_out.Value,
+		PkScript: tx_out.PkScript,
+	}
+	return utxo, nil
 }
 
 type mempoolUTXO struct {
